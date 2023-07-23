@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.atguigu.dao.AdminDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="columns">
+        select id,username,password,name,phone,head_url,description,create_time,update_time,is_deleted
+    </sql>
+
+<!--    查找并进行分页-->
+    <select id="findPage" resultType="admin">
+        <include refid="columns"></include>
+        from acl_admin
+        <where>
+            <if test="username != null and username != ''">
+                username = #{username} and
+            </if>
+            <if test="name != null and name != ''">
+                name like "%"#{name}"%" and
+            </if>
+            <if test="phone != null and phone != ''">
+                phone like "%"#{phone}"%" and
+            </if>
+            <if test="createTimeBegin != null and createTimeBegin != ''">
+                create_time >= #{createTimeBegin} and
+            </if>
+            <if test="createTimeEnd != null and createTimeEnd != ''">
+                update_time &lt; #{createTimeEnd} and
+            </if>
+            is_deleted = 0
+            order by update_time desc
+        </where>
+    </select>
+
+<!--    插入用户-->
+    <insert id="insert">
+        insert into acl_admin (name,username,phone,password)
+        values (#{name},#{username},#{phone},#{password})
+    </insert>
+
+<!--    删除用户-->
+    <delete id="delete">
+        update acl_admin
+        set is_deleted = 1
+        where id = #{id}
+    </delete>
+
+<!--    通过id查找用户-->
+    <select id="getById" resultType="admin">
+        <include refid="columns"></include>
+        from acl_admin
+        where id = #{id}
+    </select>
+
+<!--    修改用户-->
+    <update id="update">
+        update acl_admin
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="headUrl != null and headUrl != ''">
+                head_url = #{headUrl},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+<!--    查找所有管理员-->
+
+    <select id="findAll" resultType="admin">
+        <include refid="columns"></include>
+        from acl_admin
+        where is_deleted = 0
+    </select>
+
+    <select id="findAdminByName" resultType="admin">
+        <include refid="columns"></include>
+        from acl_admin
+        where username = #{userName}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.atguigu.dao.UserFollowDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="columns">
+        select id, user_id, house_id, create_time, update_time, is_deleted
+        from shf.user_follow
+    </sql>
+
+<!--    插入关注信息-->
+    <insert id="insert">
+        insert into shf.user_follow (user_id, house_id)
+        values (#{userId},#{houseId})
+    </insert>
+
+<!--    是否关注-->
+    <select id="getCountByHouseIdAndUserId" resultType="integer">
+        select count(*) from shf.user_follow
+        where house_id = #{houseId} and user_id = #{userId} and is_deleted = 0
+    </select>
+
+<!--    分页并查询的方法-->
+    <select id="findListPage" resultType="com.atguigu.vo.UserFollowVo">
+        select uf.id,hc.name as communityName,hh.*
+        from shf.user_follow as uf
+            left join shf.hse_house as hh
+            on uf.house_id = hh.id
+            left join shf.hse_community hc
+            on hh.community_id = hc.id
+        where uf.user_id = #{userId}
+          and uf.is_deleted = 0
+          and hh.is_deleted = 0
+          and hc.is_deleted = 0
+    </select>
+
+    <update id="delete">
+        update shf.user_follow
+        set is_deleted = 1
+        where id = #{id}
+    </update>
+</mapper>

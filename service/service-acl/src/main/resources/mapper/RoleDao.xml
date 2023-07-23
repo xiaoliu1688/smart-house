@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.atguigu.dao.RoleDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="columns">
+        select id,role_name,role_code,description,create_time,update_time,is_deleted
+    </sql>
+
+    <!--查询所有-->
+    <select id="findAllRole" resultType="role">
+        <include refid="columns"></include>
+        from acl_role
+        where is_deleted = 0
+    </select>
+
+
+<!--    添加角色-->
+    <insert id="insert">
+        insert into acl_role (role_name,role_code,description)
+        values (#{roleName},#{roleCode},#{description})
+    </insert>
+
+<!--    注意这里的删除不是真正物理意义上的删除,而是逻辑删除,将删除位(is_delete)置为1-->
+    <update id="delete">
+        update acl_role
+        set is_deleted = 1
+        where id = #{roleId}
+
+    </update>
+
+<!--    通过id查找对应的角色-->
+    <select id="getById" resultType="role">
+        <include refid="columns"></include>
+        from acl_role
+        where id = #{id}
+
+    </select>
+
+<!--    修改角色-->
+    <update id="update">
+        update acl_role
+        set role_name = #{roleName}, role_code = #{roleCode},description = #{description}
+        where id = #{id}
+    </update>
+
+<!--    根据分页查询角色-->
+    <select id="findPage" resultType="role">
+        <include refid="columns"></include>
+        from acl_role
+        <where>
+            <if test="roleName != null and roleName != ''">
+                role_name like "%"#{roleName}"%" and
+            </if>
+            is_deleted = 0
+        </where>
+        order by id desc
+    </select>
+
+</mapper>

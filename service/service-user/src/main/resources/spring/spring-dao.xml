@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+
+    <!--    spring整合mybatis-->
+
+    <!--加载属性文件-->
+    <context:property-placeholder location="classpath:db.properties"></context:property-placeholder>
+
+    <!--    配置dataSource-->
+    <!--    此处其实就是创建数据源对象，将数据源对象datasource装配到ioc容器中-->
+    <!--    destroy-method="close"的意思是销毁之后关闭连接-->
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="dataSource" destroy-method="close">
+        <property name="driverClassName" value="${db_driver}"></property>
+        <property name="username" value="${db_username}"></property>
+        <property name="password" value="${db_password}"></property>
+        <property name="url" value="${db_url}"></property>
+    </bean>
+
+
+    <!--    配置SqlSessionFactoryBean对象-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactoryBean">
+        <!--        引入datasource,也就是配置数据源属性-->
+        <property name="dataSource" ref="dataSource"></property>
+
+        <!--        配置实体类包下的所有类取别名-->
+        <property name="typeAliasesPackage" value="com.atguigu.entity"></property>
+
+        <!--        配置mybatis全局配置文件的路径-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+
+        <!--    配置mapper映射文件的路径-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+    </bean>
+
+    <!--    扫描mapper接口，也就是批量扫描接口生成代理对象-->
+    <mybatis-spring:scan base-package="com.atguigu.dao"></mybatis-spring:scan>
+
+</beans>

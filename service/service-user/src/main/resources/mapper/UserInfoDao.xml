@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.atguigu.dao.UserInfoDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="columns">
+        select id, phone, password, nick_name, status, create_time, update_time, is_deleted
+        from shf.user_info
+    </sql>
+
+<!--    通过手机号码获取用户信息-->
+    <select id="findUserInfoByPhone" resultType="userInfo">
+        <include refid="columns"></include>
+        where phone = #{phone} and is_deleted = 0
+    </select>
+
+<!--    插入用户信息-->
+    <insert id="insert">
+        insert into shf.user_info (phone, password, nick_name)
+        values (#{phone},#{password},#{nickName})
+    </insert>
+
+</mapper>

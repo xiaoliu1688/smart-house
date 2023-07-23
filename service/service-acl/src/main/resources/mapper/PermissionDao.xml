@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.atguigu.dao.PermissionDao">
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="columns">
+        select id, parent_id, name, url, code, type, sort, create_time, update_time, is_deleted
+        from shf.acl_permission
+    </sql>
+
+    <select id="findAllPermission" resultType="Permission">
+        <include refid="columns"></include>
+        where is_deleted = 0
+    </select>
+
+    <select id="findMenuPermissionByAdminId" resultType="permission">
+        select ap.*
+        from shf.acl_admin_role as arr
+                 left join shf.acl_role_permission as arp
+                           on arr.role_id = arp.role_id
+                 left join shf.acl_permission as ap
+                           on arp.permission_id = ap.id
+        where arr.admin_id = #{adminId} and
+            arr.is_deleted = 0 and
+            arp.is_deleted = 0 and
+            ap.is_deleted = 0 and
+            ap.type = 1;
+    </select>
+
+<!--    新增菜单-->
+    <insert id="insert">
+        insert into shf.acl_permission (id, parent_id, name, url, code, type, sort)
+        values(
+                  #{id} ,
+                  #{parentId} ,
+                  #{name} ,
+                  #{url} ,
+                  #{code} ,
+                  #{type} ,
+                  #{sort}
+              )
+
+    </insert>
+
+    <select id="getById" resultType="permission">
+        <include refid="columns"></include>
+        where id = #{id} and is_deleted = 0
+    </select>
+
+<!--    修改菜单信息-->
+    <update id="update">
+        update shf.acl_permission
+        <set>
+            <if test="parentId != null and parentId != ''">
+                parent_id = #{parentId},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="url != null and url != ''">
+                url = #{url},
+            </if>
+            <if test="code != null and code != ''">
+                code = #{code},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="sort != null and sort != ''">
+                sort = #{sort},
+            </if>
+            update_time =  now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete">
+        update shf.acl_permission
+        set is_deleted = 1
+        where id = #{id}
+    </delete>
+
+<!--    查找所有权限码-->
+    <select id="findAllPermissionCode" resultType="string">
+        select code
+        from shf.acl_permission
+        where is_deleted = 0
+    </select>
+
+<!--    根据用户id查找权限码-->
+    <select id="findPermissionCodeByAdminId" resultType="string">
+        select ap.code
+        from shf.acl_admin_role as arr
+                 left join shf.acl_role_permission as arp
+                           on arr.role_id = arp.role_id
+                 left join shf.acl_permission as ap
+                           on arp.permission_id = ap.id
+        where arr.admin_id = #{adminId} and
+            arr.is_deleted = 0 and
+            arp.is_deleted = 0 and
+            ap.is_deleted = 0 and
+            ap.type = 2;
+    </select>
+
+
+</mapper>
